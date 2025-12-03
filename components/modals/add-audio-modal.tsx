@@ -1,0 +1,220 @@
+"use client"
+
+import { useState } from "react"
+import { Card } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { motion } from "framer-motion"
+import { X } from "lucide-react"
+import { Input } from "@/components/ui/input"
+import { createAudio } from "@/lib/api"
+
+interface AddAudioModalProps {
+  isOpen: boolean
+  onClose: () => void
+  onSuccess?: () => void
+}
+
+export function AddAudioModal({ isOpen, onClose, onSuccess }: AddAudioModalProps) {
+  const [title, setTitle] = useState("")
+  const [description, setDescription] = useState("")
+  const [category, setCategory] = useState("")
+  const [durationSeconds, setDurationSeconds] = useState("")
+  const [sortOrder, setSortOrder] = useState("")
+  const [isActive, setIsActive] = useState(true)
+  const [audioFile, setAudioFile] = useState<File | null>(null)
+  const [thumbnailFile, setThumbnailFile] = useState<File | null>(null)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  if (!isOpen) return null
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setError(null)
+
+    if (!title.trim()) {
+      setError("Title is required")
+      return
+    }
+
+    if (!durationSeconds || isNaN(Number(durationSeconds)) || Number(durationSeconds) <= 0) {
+      setError("Valid duration in seconds is required")
+      return
+    }
+
+    if (!audioFile && !title) {
+      setError("Either audio file or audio URL is required")
+      return
+    }
+
+    setIsSubmitting(true)
+
+    try {
+      await createAudio({
+        title: title.trim(),
+        description: description.trim() || undefined,
+        category: category.trim() || undefined,
+        durationSeconds: Number(durationSeconds),
+        sortOrder: sortOrder ? Number(sortOrder) : 0,
+        isActive,
+        audio: audioFile || undefined,
+        thumbnail: thumbnailFile || undefined,
+      })
+
+      // Reset form
+      setTitle("")
+      setDescription("")
+      setCategory("")
+      setDurationSeconds("")
+      setSortOrder("")
+      setIsActive(true)
+      setAudioFile(null)
+      setThumbnailFile(null)
+      setError(null)
+
+      onSuccess?.()
+      onClose()
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Failed to create audio"
+      setError(message)
+      console.error("Failed to create audio:", err)
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  return (
+    <>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="fixed inset-0 bg-black/80 z-[100]"
+        onClick={onClose}
+      />
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        exit={{ opacity: 0, scale: 0.95 }}
+        className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[calc(100%-2rem)] max-w-md z-[110] max-h-[90vh] overflow-y-auto"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <Card className="p-4 sm:p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-foreground">Upload Audio</h3>
+            <button onClick={onClose} className="text-muted-foreground hover:text-foreground cursor-pointer">
+              <X size={20} />
+            </button>
+          </div>
+
+          {error && (
+            <div className="mb-4 p-3 bg-destructive/10 border border-destructive/20 rounded text-sm text-destructive">
+              {error}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="text-sm font-medium text-foreground block mb-2">
+                Title <span className="text-destructive">*</span>
+              </label>
+              <Input
+                placeholder="Enter audio title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                required
+                disabled={isSubmitting}
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium text-foreground block mb-2">Description</label>
+              <Input
+                placeholder="Enter audio description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                disabled={isSubmitting}
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium text-foreground block mb-2">Category</label>
+              <Input
+                placeholder="Enter category"
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                disabled={isSubmitting}
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium text-foreground block mb-2">
+                Duration (seconds) <span className="text-destructive">*</span>
+              </label>
+              <Input
+                type="number"
+                placeholder="e.g., 300"
+                value={durationSeconds}
+                onChange={(e) => setDurationSeconds(e.target.value)}
+                required
+                min="1"
+                disabled={isSubmitting}
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium text-foreground block mb-2">Sort Order</label>
+              <Input
+                type="number"
+                placeholder="0"
+                value={sortOrder}
+                onChange={(e) => setSortOrder(e.target.value)}
+                disabled={isSubmitting}
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium text-foreground block mb-2">Audio File</label>
+              <Input
+                type="file"
+                accept="audio/*"
+                onChange={(e) => setAudioFile(e.target.files?.[0] || null)}
+                disabled={isSubmitting}
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium text-foreground block mb-2">Thumbnail Image</label>
+              <Input
+                type="file"
+                accept="image/*"
+                onChange={(e) => setThumbnailFile(e.target.files?.[0] || null)}
+                disabled={isSubmitting}
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium text-foreground block mb-2">Status</label>
+              <select
+                className="w-full px-3 py-2 border border-input rounded-lg bg-background text-foreground"
+                value={isActive ? "published" : "draft"}
+                onChange={(e) => setIsActive(e.target.value === "published")}
+                disabled={isSubmitting}
+              >
+                <option value="published">Published</option>
+                <option value="draft">Draft</option>
+              </select>
+            </div>
+            <div className="flex gap-2 pt-4">
+              <Button
+                type="button"
+                onClick={onClose}
+                variant="outline"
+                className="flex-1 cursor-pointer"
+                disabled={isSubmitting}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" className="flex-1 cursor-pointer" disabled={isSubmitting}>
+                {isSubmitting ? "Uploading..." : "Upload"}
+              </Button>
+            </div>
+          </form>
+        </Card>
+      </motion.div>
+    </>
+  )
+}
