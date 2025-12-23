@@ -44,16 +44,18 @@ export default function Home() {
         await getCurrentAdmin()
         setIsAuthenticated(true)
         
-        // Check URL params for section
-        const params = new URLSearchParams(window.location.search)
-        const sectionParam = params.get("section")
-        
-        if (sectionParam) {
-          setActiveSection(sectionParam)
-        } else {
-          const savedSection = localStorage.getItem("activeSection")
-          if (savedSection) {
-            setActiveSection(savedSection)
+        // Check URL params for section (only in browser)
+        if (typeof window !== "undefined") {
+          const params = new URLSearchParams(window.location.search)
+          const sectionParam = params.get("section")
+          
+          if (sectionParam) {
+            setActiveSection(sectionParam)
+          } else {
+            const savedSection = localStorage.getItem("activeSection")
+            if (savedSection) {
+              setActiveSection(savedSection)
+            }
           }
         }
       } catch (error) {
@@ -71,7 +73,7 @@ export default function Home() {
   }, [router])
 
   useEffect(() => {
-    if (mounted) {
+    if (mounted && typeof window !== "undefined") {
       localStorage.setItem("activeSection", activeSection)
       // Update URL without page reload
       const newUrl = activeSection === "dashboard" 

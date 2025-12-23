@@ -86,9 +86,18 @@ export function ViewUserModal({ isOpen, onClose, user }: ViewUserModalProps) {
               <div>
                 <label className="text-sm font-medium text-foreground block mb-2">Login Method</label>
                 <p className="text-sm text-muted-foreground bg-secondary/30 p-3 rounded-lg">
-                  {user.isOAuthUser ? (user.oauthProvider || "OAuth") : "Email/Password"}
+                  {user.isOAuthUser ? (user.oauthProvider ? `${user.oauthProvider.charAt(0).toUpperCase() + user.oauthProvider.slice(1)} Sign-In` : "OAuth") : "Email/Password"}
                 </p>
               </div>
+
+              {user.firebaseUid && (
+                <div>
+                  <label className="text-sm font-medium text-foreground block mb-2">Firebase UID</label>
+                  <p className="text-xs text-muted-foreground bg-secondary/30 p-3 rounded-lg font-mono break-all">
+                    {user.firebaseUid}
+                  </p>
+                </div>
+              )}
 
               <div>
                 <label className="text-sm font-medium text-foreground block mb-2">Assessment Status</label>

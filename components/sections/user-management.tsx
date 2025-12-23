@@ -163,6 +163,9 @@ export function UserManagementSection() {
                     <th className="px-4 md:px-6 py-3 text-left text-xs md:text-sm font-semibold text-foreground hidden md:table-cell">
                       Subscription
                     </th>
+                    <th className="px-4 md:px-6 py-3 text-left text-xs md:text-sm font-semibold text-foreground hidden lg:table-cell">
+                      Auth Method
+                    </th>
                     <th className="px-4 md:px-6 py-3 text-left text-xs md:text-sm font-semibold text-foreground">
                       Assessment
                     </th>
@@ -191,10 +194,33 @@ export function UserManagementSection() {
                               ? "bg-accent/20 text-accent"
                               : user.currentSubscriptionType === "Coach"
                               ? "bg-primary/20 text-primary"
+                              : user.currentSubscriptionType === "Plus"
+                              ? "bg-blue-100 text-blue-700"
+                              : user.currentSubscriptionType === "Pro"
+                              ? "bg-purple-100 text-purple-700"
                               : "bg-gray-100 text-foreground"
                           }`}
                         >
                           {user.currentSubscriptionType}
+                        </span>
+                      </td>
+                      <td className="px-4 md:px-6 py-4 text-xs md:text-sm hidden lg:table-cell">
+                        <span
+                          className={`px-2 md:px-3 py-1 rounded-full text-xs font-medium ${
+                            user.isOAuthUser
+                              ? user.oauthProvider === "google"
+                                ? "bg-red-100 text-red-700"
+                                : user.oauthProvider === "apple"
+                                ? "bg-gray-100 text-gray-700"
+                                : "bg-blue-100 text-blue-700"
+                              : "bg-gray-100 text-gray-600"
+                          }`}
+                        >
+                          {user.isOAuthUser
+                            ? user.oauthProvider
+                              ? user.oauthProvider.charAt(0).toUpperCase() + user.oauthProvider.slice(1)
+                              : "OAuth"
+                            : "Email"}
                         </span>
                       </td>
                       <td className="px-4 md:px-6 py-4 text-xs md:text-sm">

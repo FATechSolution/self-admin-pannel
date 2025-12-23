@@ -26,7 +26,9 @@ export function LearnGrowSection() {
   const [selectedItem, setSelectedItem] = useState<{id: number, title: string, type: string} | null>(null)
 
   useEffect(() => {
-    localStorage.setItem("learnGrowActiveTab", activeTab)
+    if (typeof window !== "undefined") {
+      localStorage.setItem("learnGrowActiveTab", activeTab)
+    }
   }, [activeTab])
 
   const audioFiles = [

@@ -581,6 +581,7 @@ export type AdminUser = {
   email: string
   isOAuthUser: boolean
   oauthProvider?: string | null
+  firebaseUid?: string | null
   avatar?: string | null
   age?: number | null
   focusAreas: string[]
@@ -588,7 +589,7 @@ export type AdminUser = {
   lastLogin?: string | null
   hasCompletedAssessment: boolean
   assessmentCompletedAt?: string | null
-  currentSubscriptionType: "Free" | "Premium" | "Coach"
+  currentSubscriptionType: "Free" | "Premium" | "Coach" | "Plus" | "Pro"
   createdAt: string
   updatedAt: string
 }
@@ -599,6 +600,7 @@ const mapUser = (raw: any): AdminUser => ({
   email: String(raw.email ?? ""),
   isOAuthUser: Boolean(raw.isOAuthUser ?? false),
   oauthProvider: raw.oauthProvider ?? null,
+  firebaseUid: raw.firebaseUid ?? null,
   avatar: raw.avatar ?? null,
   age: raw.age ?? null,
   focusAreas: Array.isArray(raw.focusAreas) ? raw.focusAreas : [],

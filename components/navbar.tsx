@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion"
 import { Menu, LogOut } from "lucide-react"
+import { auth } from "@/lib/auth"
 
 interface NavbarProps {
   sidebarOpen: boolean
@@ -18,6 +19,9 @@ export function Navbar({ sidebarOpen, setSidebarOpen, activeSection }: NavbarPro
       dashboard: "Dashboard",
       users: "User Management",
       "learn-grow": "Learn & Grow",
+      audios: "Audios",
+      videos: "Videos",
+      articles: "Articles",
     }
     return sections[activeSection] || "Dashboard"
   }
@@ -47,12 +51,7 @@ export function Navbar({ sidebarOpen, setSidebarOpen, activeSection }: NavbarPro
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
           onClick={() => {
-            // Clear auth token
-            document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;'
-            // Clear local storage
-            localStorage.clear()
-            // Redirect to login
-            window.location.href = '/login'
+            auth.logout()
           }}
           className="flex items-center gap-2 sm:gap-2.5 px-3 sm:px-4 py-2 sm:py-2.5 text-sm font-medium text-white bg-destructive hover:bg-destructive/90 rounded-lg transition-all shadow-sm hover:shadow-md cursor-pointer"
         >

@@ -14,6 +14,7 @@ export function Sidebar({ activeSection, setActiveSection, isOpen, setIsOpen }: 
   const menuItems = [
     { id: "dashboard", label: "Dashboard", icon: Menu },
     { id: "users", label: "User Management", icon: Users },
+    { id: "learn-grow", label: "Learn & Grow", icon: FileText },
     { id: "audios", label: "Audios", icon: Music },
     { id: "videos", label: "Videos", icon: Video },
     { id: "articles", label: "Articles", icon: FileText },
@@ -75,8 +76,10 @@ export function Sidebar({ activeSection, setActiveSection, isOpen, setIsOpen }: 
                     e.preventDefault()
                     setActiveSection(item.id)
                     setIsOpen(false)
-                    // Update URL
-                    window.history.pushState({}, '', href)
+                    // Update URL (only in browser)
+                    if (typeof window !== "undefined") {
+                      window.history.pushState({}, '', href)
+                    }
                   }}
                   whileHover={{ x: 4 }}
                   whileTap={{ scale: 0.98 }}

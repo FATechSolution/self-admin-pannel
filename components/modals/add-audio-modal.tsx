@@ -22,7 +22,9 @@ export function AddAudioModal({ isOpen, onClose, onSuccess }: AddAudioModalProps
   const [sortOrder, setSortOrder] = useState("")
   const [isActive, setIsActive] = useState(true)
   const [audioFile, setAudioFile] = useState<File | null>(null)
+  const [audioUrl, setAudioUrl] = useState("")
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null)
+  const [thumbnailUrl, setThumbnailUrl] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -42,7 +44,7 @@ export function AddAudioModal({ isOpen, onClose, onSuccess }: AddAudioModalProps
       return
     }
 
-    if (!audioFile && !title) {
+    if (!audioFile && !audioUrl.trim()) {
       setError("Either audio file or audio URL is required")
       return
     }
@@ -58,7 +60,9 @@ export function AddAudioModal({ isOpen, onClose, onSuccess }: AddAudioModalProps
         sortOrder: sortOrder ? Number(sortOrder) : 0,
         isActive,
         audio: audioFile || undefined,
+        audioUrl: audioUrl.trim() || undefined,
         thumbnail: thumbnailFile || undefined,
+        thumbnailUrl: thumbnailUrl.trim() || undefined,
       })
 
       // Reset form
@@ -69,7 +73,9 @@ export function AddAudioModal({ isOpen, onClose, onSuccess }: AddAudioModalProps
       setSortOrder("")
       setIsActive(true)
       setAudioFile(null)
+      setAudioUrl("")
       setThumbnailFile(null)
+      setThumbnailUrl("")
       setError(null)
 
       onSuccess?.()
@@ -169,20 +175,68 @@ export function AddAudioModal({ isOpen, onClose, onSuccess }: AddAudioModalProps
               />
             </div>
             <div>
-              <label className="text-sm font-medium text-foreground block mb-2">Audio File</label>
+              <label className="text-sm font-medium text-foreground block mb-2">
+                Audio File <span className="text-muted-foreground text-xs">(or provide URL below)</span>
+              </label>
               <Input
                 type="file"
                 accept="audio/*"
-                onChange={(e) => setAudioFile(e.target.files?.[0] || null)}
+                onChange={(e) => {
+                  setAudioFile(e.target.files?.[0] || null)
+                  if (e.target.files?.[0]) {
+                    setAudioUrl("") // Clear URL if file is selected
+                  }
+                }}
                 disabled={isSubmitting}
               />
             </div>
             <div>
-              <label className="text-sm font-medium text-foreground block mb-2">Thumbnail Image</label>
+              <label className="text-sm font-medium text-foreground block mb-2">
+                Audio URL <span className="text-muted-foreground text-xs">(if not uploading file)</span>
+              </label>
+              <Input
+                type="url"
+                placeholder="https://example.com/audio.mp3"
+                value={audioUrl}
+                onChange={(e) => {
+                  setAudioUrl(e.target.value)
+                  if (e.target.value.trim()) {
+                    setAudioFile(null) // Clear file if URL is provided
+                  }
+                }}
+                disabled={isSubmitting}
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium text-foreground block mb-2">
+                Thumbnail Image <span className="text-muted-foreground text-xs">(optional)</span>
+              </label>
               <Input
                 type="file"
                 accept="image/*"
-                onChange={(e) => setThumbnailFile(e.target.files?.[0] || null)}
+                onChange={(e) => {
+                  setThumbnailFile(e.target.files?.[0] || null)
+                  if (e.target.files?.[0]) {
+                    setThumbnailUrl("") // Clear URL if file is selected
+                  }
+                }}
+                disabled={isSubmitting}
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium text-foreground block mb-2">
+                Thumbnail URL <span className="text-muted-foreground text-xs">(if not uploading file)</span>
+              </label>
+              <Input
+                type="url"
+                placeholder="https://example.com/thumbnail.jpg"
+                value={thumbnailUrl}
+                onChange={(e) => {
+                  setThumbnailUrl(e.target.value)
+                  if (e.target.value.trim()) {
+                    setThumbnailFile(null) // Clear file if URL is provided
+                  }
+                }}
                 disabled={isSubmitting}
               />
             </div>

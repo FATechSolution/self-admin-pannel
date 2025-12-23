@@ -20,7 +20,9 @@ export function AddVideoModal({ isOpen, onClose, onSuccess }: AddVideoModalProps
   const [category, setCategory] = useState("")
   const [durationSeconds, setDurationSeconds] = useState("")
   const [videoFile, setVideoFile] = useState<File | null>(null)
+  const [videoUrl, setVideoUrl] = useState("")
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null)
+  const [thumbnailUrl, setThumbnailUrl] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -35,8 +37,8 @@ export function AddVideoModal({ isOpen, onClose, onSuccess }: AddVideoModalProps
       return
     }
 
-    if (!videoFile) {
-      setError("Video file is required")
+    if (!videoFile && !videoUrl.trim()) {
+      setError("Either video file or video URL is required")
       return
     }
 
@@ -53,8 +55,10 @@ export function AddVideoModal({ isOpen, onClose, onSuccess }: AddVideoModalProps
         description: description.trim() || undefined,
         category: category.trim() || undefined,
         durationSeconds: Number(durationSeconds),
-        video: videoFile,
+        video: videoFile || undefined,
+        videoUrl: videoUrl.trim() || undefined,
         thumbnail: thumbnailFile || undefined,
+        thumbnailUrl: thumbnailUrl.trim() || undefined,
       })
 
       // Reset form
@@ -63,7 +67,9 @@ export function AddVideoModal({ isOpen, onClose, onSuccess }: AddVideoModalProps
       setCategory("")
       setDurationSeconds("")
       setVideoFile(null)
+      setVideoUrl("")
       setThumbnailFile(null)
+      setThumbnailUrl("")
       setError(null)
 
       onSuccess?.()
@@ -154,22 +160,67 @@ export function AddVideoModal({ isOpen, onClose, onSuccess }: AddVideoModalProps
             </div>
             <div>
               <label className="text-sm font-medium text-foreground block mb-2">
-                Video File <span className="text-destructive">*</span>
+                Video File <span className="text-muted-foreground text-xs">(or provide URL below)</span>
               </label>
               <Input
                 type="file"
                 accept="video/*"
-                onChange={(e) => setVideoFile(e.target.files?.[0] || null)}
-                required
+                onChange={(e) => {
+                  setVideoFile(e.target.files?.[0] || null)
+                  if (e.target.files?.[0]) {
+                    setVideoUrl("") // Clear URL if file is selected
+                  }
+                }}
                 disabled={isSubmitting}
               />
             </div>
             <div>
-              <label className="text-sm font-medium text-foreground block mb-2">Thumbnail Image (optional)</label>
+              <label className="text-sm font-medium text-foreground block mb-2">
+                Video URL <span className="text-muted-foreground text-xs">(if not uploading file)</span>
+              </label>
+              <Input
+                type="url"
+                placeholder="https://example.com/video.mp4"
+                value={videoUrl}
+                onChange={(e) => {
+                  setVideoUrl(e.target.value)
+                  if (e.target.value.trim()) {
+                    setVideoFile(null) // Clear file if URL is provided
+                  }
+                }}
+                disabled={isSubmitting}
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium text-foreground block mb-2">
+                Thumbnail Image <span className="text-muted-foreground text-xs">(optional)</span>
+              </label>
               <Input
                 type="file"
                 accept="image/*"
-                onChange={(e) => setThumbnailFile(e.target.files?.[0] || null)}
+                onChange={(e) => {
+                  setThumbnailFile(e.target.files?.[0] || null)
+                  if (e.target.files?.[0]) {
+                    setThumbnailUrl("") // Clear URL if file is selected
+                  }
+                }}
+                disabled={isSubmitting}
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium text-foreground block mb-2">
+                Thumbnail URL <span className="text-muted-foreground text-xs">(if not uploading file)</span>
+              </label>
+              <Input
+                type="url"
+                placeholder="https://example.com/thumbnail.jpg"
+                value={thumbnailUrl}
+                onChange={(e) => {
+                  setThumbnailUrl(e.target.value)
+                  if (e.target.value.trim()) {
+                    setThumbnailFile(null) // Clear file if URL is provided
+                  }
+                }}
                 disabled={isSubmitting}
               />
             </div>

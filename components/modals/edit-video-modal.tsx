@@ -21,7 +21,9 @@ export function EditVideoModal({ isOpen, onClose, video, onSuccess }: EditVideoM
   const [category, setCategory] = useState("")
   const [durationSeconds, setDurationSeconds] = useState("")
   const [videoFile, setVideoFile] = useState<File | null>(null)
+  const [videoUrl, setVideoUrl] = useState("")
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null)
+  const [thumbnailUrl, setThumbnailUrl] = useState("")
   const [videoPreview, setVideoPreview] = useState<string | null>(null)
   const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -34,7 +36,9 @@ export function EditVideoModal({ isOpen, onClose, video, onSuccess }: EditVideoM
       setCategory(video.category || "")
       setDurationSeconds(String(video.durationSeconds))
       setVideoFile(null)
+      setVideoUrl(video.videoUrl || "")
       setThumbnailFile(null)
+      setThumbnailUrl(video.thumbnailUrl || "")
       setVideoPreview(video.videoUrl || null)
       setThumbnailPreview(video.thumbnailUrl || null)
       setError(null)
@@ -66,7 +70,9 @@ export function EditVideoModal({ isOpen, onClose, video, onSuccess }: EditVideoM
         category: category.trim() || undefined,
         durationSeconds: Number(durationSeconds),
         video: videoFile || undefined,
+        videoUrl: videoFile ? undefined : (videoUrl.trim() || undefined),
         thumbnail: thumbnailFile || undefined,
+        thumbnailUrl: thumbnailFile ? undefined : (thumbnailUrl.trim() || undefined),
       })
 
       onSuccess?.()
@@ -157,7 +163,7 @@ export function EditVideoModal({ isOpen, onClose, video, onSuccess }: EditVideoM
             </div>
             <div>
               <label className="text-sm font-medium text-foreground block mb-2">
-                Video File (optional, leave empty to keep current)
+                Video File <span className="text-muted-foreground text-xs">(optional, leave empty to keep current)</span>
               </label>
               {videoPreview && !videoFile && (
                 <div className="mb-2 p-3 bg-secondary/30 rounded-lg border border-border">
@@ -185,6 +191,7 @@ export function EditVideoModal({ isOpen, onClose, video, onSuccess }: EditVideoM
                   const file = e.target.files?.[0] || null
                   setVideoFile(file)
                   if (file) {
+                    setVideoUrl("") // Clear URL if file is selected
                     setVideoPreview(null) // Clear preview when new file is selected
                   }
                 }}
@@ -193,7 +200,24 @@ export function EditVideoModal({ isOpen, onClose, video, onSuccess }: EditVideoM
             </div>
             <div>
               <label className="text-sm font-medium text-foreground block mb-2">
-                Thumbnail Image (optional, leave empty to keep current)
+                Video URL <span className="text-muted-foreground text-xs">(if not uploading file)</span>
+              </label>
+              <Input
+                type="url"
+                placeholder="https://example.com/video.mp4"
+                value={videoUrl}
+                onChange={(e) => {
+                  setVideoUrl(e.target.value)
+                  if (e.target.value.trim()) {
+                    setVideoFile(null) // Clear file if URL is provided
+                  }
+                }}
+                disabled={isSubmitting}
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium text-foreground block mb-2">
+                Thumbnail Image <span className="text-muted-foreground text-xs">(optional, leave empty to keep current)</span>
               </label>
               {thumbnailPreview && !thumbnailFile && (
                 <div className="mb-2 p-3 bg-secondary/30 rounded-lg border border-border">
@@ -226,7 +250,25 @@ export function EditVideoModal({ isOpen, onClose, video, onSuccess }: EditVideoM
                   const file = e.target.files?.[0] || null
                   setThumbnailFile(file)
                   if (file) {
+                    setThumbnailUrl("") // Clear URL if file is selected
                     setThumbnailPreview(null) // Clear preview when new file is selected
+                  }
+                }}
+                disabled={isSubmitting}
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium text-foreground block mb-2">
+                Thumbnail URL <span className="text-muted-foreground text-xs">(if not uploading file)</span>
+              </label>
+              <Input
+                type="url"
+                placeholder="https://example.com/thumbnail.jpg"
+                value={thumbnailUrl}
+                onChange={(e) => {
+                  setThumbnailUrl(e.target.value)
+                  if (e.target.value.trim()) {
+                    setThumbnailFile(null) // Clear file if URL is provided
                   }
                 }}
                 disabled={isSubmitting}
