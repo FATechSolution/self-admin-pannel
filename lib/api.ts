@@ -589,7 +589,7 @@ export type AdminUser = {
   lastLogin?: string | null
   hasCompletedAssessment: boolean
   assessmentCompletedAt?: string | null
-  currentSubscriptionType: "Free" | "Premium" | "Coach" | "Plus" | "Pro"
+  currentSubscriptionType: "Free" | "Premium" | "Gold" | "Coach"
   createdAt: string
   updatedAt: string
 }
