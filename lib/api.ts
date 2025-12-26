@@ -5,6 +5,17 @@ const DEFAULT_API_BASE_URL = "https://self-actualization-analysis-be.vercel.app"
 export const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL || DEFAULT_API_BASE_URL
 
+// Shared types
+export type ContentCategory = "Survival" | "Safety" | "Social" | "Self" | "Meta-Needs"
+
+export const CONTENT_CATEGORIES: ContentCategory[] = [
+  "Survival",
+  "Safety", 
+  "Social",
+  "Self",
+  "Meta-Needs"
+]
+
 // Admin types
 export type Admin = {
   id: string
@@ -32,7 +43,10 @@ export type AdminAudio = {
   id: string
   title: string
   description?: string
-  category?: string | null
+  category: ContentCategory
+  questionId?: string | null
+  needKey?: string | null
+  needLabel?: string | null
   audioUrl: string
   thumbnailUrl?: string | null
   durationSeconds: number
@@ -114,7 +128,10 @@ const mapAudio = (raw: any): AdminAudio => ({
   id: String(raw._id ?? raw.id),
   title: String(raw.title ?? ""),
   description: raw.description ?? undefined,
-  category: raw.category ?? null,
+  category: raw.category as ContentCategory,
+  questionId: raw.questionId ?? null,
+  needKey: raw.needKey ?? null,
+  needLabel: raw.needLabel ?? null,
   audioUrl: String(raw.audioUrl ?? ""),
   thumbnailUrl: raw.thumbnailUrl ?? null,
   durationSeconds: Number(raw.durationSeconds ?? 0),
@@ -150,7 +167,10 @@ export async function fetchAdminAudios(params?: {
 type CreateAudioPayload = {
   title: string
   description?: string
-  category?: string
+  category: ContentCategory
+  questionId?: string
+  needKey?: string
+  needLabel?: string
   durationSeconds: number
   sortOrder?: number
   isActive?: boolean
@@ -173,7 +193,10 @@ export async function createAudio(payload: CreateAudioPayload): Promise<AdminAud
   
   formData.append("title", payload.title)
   if (payload.description) formData.append("description", payload.description)
-  if (payload.category) formData.append("category", payload.category)
+  formData.append("category", payload.category)
+  if (payload.questionId) formData.append("questionId", payload.questionId)
+  if (payload.needKey) formData.append("needKey", payload.needKey)
+  if (payload.needLabel) formData.append("needLabel", payload.needLabel)
   formData.append("durationSeconds", String(payload.durationSeconds))
   if (payload.sortOrder !== undefined) formData.append("sortOrder", String(payload.sortOrder))
   if (payload.isActive !== undefined) formData.append("isActive", String(payload.isActive))
@@ -200,7 +223,10 @@ export async function updateAudio(id: string, payload: UpdateAudioPayload): Prom
   
   if (payload.title) formData.append("title", payload.title)
   if (payload.description !== undefined) formData.append("description", payload.description || "")
-  if (payload.category !== undefined) formData.append("category", payload.category || "")
+  if (payload.category) formData.append("category", payload.category)
+  if (payload.questionId !== undefined) formData.append("questionId", payload.questionId || "")
+  if (payload.needKey !== undefined) formData.append("needKey", payload.needKey || "")
+  if (payload.needLabel !== undefined) formData.append("needLabel", payload.needLabel || "")
   if (payload.durationSeconds !== undefined) formData.append("durationSeconds", String(payload.durationSeconds))
   if (payload.sortOrder !== undefined) formData.append("sortOrder", String(payload.sortOrder))
   if (payload.isActive !== undefined) formData.append("isActive", String(payload.isActive))
@@ -238,7 +264,10 @@ export type AdminVideo = {
   id: string
   title: string
   description?: string
-  category?: string | null
+  category: ContentCategory
+  questionId?: string | null
+  needKey?: string | null
+  needLabel?: string | null
   videoUrl: string
   thumbnailUrl?: string | null
   durationSeconds: number
@@ -251,7 +280,10 @@ const mapVideo = (raw: any): AdminVideo => ({
   id: String(raw._id ?? raw.id),
   title: String(raw.title ?? ""),
   description: raw.description ?? undefined,
-  category: raw.category ?? null,
+  category: raw.category as ContentCategory,
+  questionId: raw.questionId ?? null,
+  needKey: raw.needKey ?? null,
+  needLabel: raw.needLabel ?? null,
   videoUrl: String(raw.videoUrl ?? ""),
   thumbnailUrl: raw.thumbnailUrl ?? null,
   durationSeconds: Number(raw.durationSeconds ?? 0),
@@ -287,7 +319,10 @@ export async function fetchAdminVideos(params?: {
 type CreateVideoPayload = {
   title: string
   description?: string
-  category?: string
+  category: ContentCategory
+  questionId?: string
+  needKey?: string
+  needLabel?: string
   durationSeconds: number
   sortOrder?: number
   isActive?: boolean
@@ -304,7 +339,10 @@ export async function createVideo(payload: CreateVideoPayload): Promise<AdminVid
   
   formData.append("title", payload.title)
   if (payload.description) formData.append("description", payload.description)
-  if (payload.category) formData.append("category", payload.category)
+  formData.append("category", payload.category)
+  if (payload.questionId) formData.append("questionId", payload.questionId)
+  if (payload.needKey) formData.append("needKey", payload.needKey)
+  if (payload.needLabel) formData.append("needLabel", payload.needLabel)
   formData.append("durationSeconds", String(payload.durationSeconds))
   if (payload.sortOrder !== undefined) formData.append("sortOrder", String(payload.sortOrder))
   if (payload.isActive !== undefined) formData.append("isActive", String(payload.isActive))
@@ -331,7 +369,10 @@ export async function updateVideo(id: string, payload: UpdateVideoPayload): Prom
   
   if (payload.title) formData.append("title", payload.title)
   if (payload.description !== undefined) formData.append("description", payload.description || "")
-  if (payload.category !== undefined) formData.append("category", payload.category || "")
+  if (payload.category) formData.append("category", payload.category)
+  if (payload.questionId !== undefined) formData.append("questionId", payload.questionId || "")
+  if (payload.needKey !== undefined) formData.append("needKey", payload.needKey || "")
+  if (payload.needLabel !== undefined) formData.append("needLabel", payload.needLabel || "")
   if (payload.durationSeconds !== undefined) formData.append("durationSeconds", String(payload.durationSeconds))
   if (payload.sortOrder !== undefined) formData.append("sortOrder", String(payload.sortOrder))
   
@@ -368,7 +409,10 @@ export type AdminArticle = {
   id: string
   title: string
   content: string
-  category?: string | null
+  category: ContentCategory
+  questionId?: string | null
+  needKey?: string | null
+  needLabel?: string | null
   thumbnailUrl?: string | null
   readTimeMinutes: number
   isActive: boolean
@@ -380,7 +424,10 @@ const mapArticle = (raw: any): AdminArticle => ({
   id: String(raw._id ?? raw.id),
   title: String(raw.title ?? ""),
   content: String(raw.content ?? ""),
-  category: raw.category ?? null,
+  category: raw.category as ContentCategory,
+  questionId: raw.questionId ?? null,
+  needKey: raw.needKey ?? null,
+  needLabel: raw.needLabel ?? null,
   thumbnailUrl: raw.thumbnailUrl ?? null,
   readTimeMinutes: Number(raw.readTimeMinutes ?? 0),
   isActive: Boolean(raw.isActive ?? true),
@@ -415,7 +462,10 @@ export async function fetchAdminArticles(params?: {
 type CreateArticlePayload = {
   title: string
   content: string
-  category?: string
+  category: ContentCategory
+  questionId?: string
+  needKey?: string
+  needLabel?: string
   readTimeMinutes: number
   sortOrder?: number
   isActive?: boolean
@@ -430,7 +480,10 @@ export async function createArticle(payload: CreateArticlePayload): Promise<Admi
   
   formData.append("title", payload.title)
   formData.append("content", payload.content)
-  if (payload.category) formData.append("category", payload.category)
+  formData.append("category", payload.category)
+  if (payload.questionId) formData.append("questionId", payload.questionId)
+  if (payload.needKey) formData.append("needKey", payload.needKey)
+  if (payload.needLabel) formData.append("needLabel", payload.needLabel)
   formData.append("readTimeMinutes", String(payload.readTimeMinutes))
   if (payload.sortOrder !== undefined) formData.append("sortOrder", String(payload.sortOrder))
   if (payload.isActive !== undefined) formData.append("isActive", String(payload.isActive))
@@ -455,7 +508,10 @@ export async function updateArticle(id: string, payload: UpdateArticlePayload): 
   
   if (payload.title) formData.append("title", payload.title)
   if (payload.content !== undefined) formData.append("content", payload.content)
-  if (payload.category !== undefined) formData.append("category", payload.category || "")
+  if (payload.category) formData.append("category", payload.category)
+  if (payload.questionId !== undefined) formData.append("questionId", payload.questionId || "")
+  if (payload.needKey !== undefined) formData.append("needKey", payload.needKey || "")
+  if (payload.needLabel !== undefined) formData.append("needLabel", payload.needLabel || "")
   if (payload.readTimeMinutes !== undefined) formData.append("readTimeMinutes", String(payload.readTimeMinutes))
   if (payload.sortOrder !== undefined) formData.append("sortOrder", String(payload.sortOrder))
   

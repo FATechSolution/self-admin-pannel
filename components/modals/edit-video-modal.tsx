@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { motion } from "framer-motion"
 import { X } from "lucide-react"
 import { Input } from "@/components/ui/input"
-import { updateVideo, type AdminVideo } from "@/lib/api"
+import { updateVideo, type AdminVideo, CONTENT_CATEGORIES, type ContentCategory, type Question } from "@/lib/api"
 
 interface EditVideoModalProps {
   isOpen: boolean
@@ -18,7 +18,10 @@ interface EditVideoModalProps {
 export function EditVideoModal({ isOpen, onClose, video, onSuccess }: EditVideoModalProps) {
   const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
-  const [category, setCategory] = useState("")
+  const [category, setCategory] = useState<ContentCategory>("Survival")
+  const [questionId, setQuestionId] = useState("")
+  const [questions, setQuestions] = useState<Question[]>([])
+  const [loadingQuestions, setLoadingQuestions] = useState(false)
   const [durationSeconds, setDurationSeconds] = useState("")
   const [videoFile, setVideoFile] = useState<File | null>(null)
   const [videoUrl, setVideoUrl] = useState("")
@@ -29,11 +32,34 @@ export function EditVideoModal({ isOpen, onClose, video, onSuccess }: EditVideoM
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+  // Load questions when category changes
+  useEffect(() => {
+    const loadQuestions = async () => {
+      if (!category) return
+
+      setLoadingQuestions(true)
+      try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/goals/needs/${category}`)
+        if (!response.ok) throw new Error("Failed to fetch questions")
+        const data = await response.json()
+        setQuestions(data.data || [])
+      } catch (err) {
+        console.error("Failed to load questions:", err)
+        setQuestions([])
+      } finally {
+        setLoadingQuestions(false)
+      }
+    }
+
+    loadQuestions()
+  }, [category])
+
   useEffect(() => {
     if (video) {
       setTitle(video.title)
       setDescription(video.description || "")
-      setCategory(video.category || "")
+      setCategory((video.category as ContentCategory) || "Survival")
+      setQuestionId(video.questionId || "")
       setDurationSeconds(String(video.durationSeconds))
       setVideoFile(null)
       setVideoUrl(video.videoUrl || "")
@@ -56,6 +82,11 @@ export function EditVideoModal({ isOpen, onClose, video, onSuccess }: EditVideoM
       return
     }
 
+    if (!category) {
+      setError("Category is required")
+      return
+    }
+
     if (!durationSeconds || isNaN(Number(durationSeconds)) || Number(durationSeconds) <= 0) {
       setError("Valid duration in seconds is required")
       return
@@ -67,7 +98,8 @@ export function EditVideoModal({ isOpen, onClose, video, onSuccess }: EditVideoM
       await updateVideo(video.id, {
         title: title.trim(),
         description: description.trim() || undefined,
-        category: category.trim() || undefined,
+        category: category,
+        questionId: questionId || undefined,
         durationSeconds: Number(durationSeconds),
         video: videoFile || undefined,
         videoUrl: videoFile ? undefined : (videoUrl.trim() || undefined),
@@ -139,13 +171,50 @@ export function EditVideoModal({ isOpen, onClose, video, onSuccess }: EditVideoM
               />
             </div>
             <div>
-              <label className="text-sm font-medium text-foreground block mb-2">Category</label>
-              <Input
-                placeholder="Enter category"
+              <label className="text-sm font-medium text-foreground block mb-2">
+                Category <span className="text-destructive">*</span>
+              </label>
+              <select
+                className="w-full px-3 py-2 border border-input rounded-lg bg-background text-foreground"
                 value={category}
-                onChange={(e) => setCategory(e.target.value)}
+                onChange={(e) => {
+                  setCategory(e.target.value as ContentCategory)
+                  setQuestionId("") // Reset question when category changes
+                }}
+                required
                 disabled={isSubmitting}
-              />
+              >
+                {CONTENT_CATEGORIES.map((cat) => (
+                  <option key={cat} value={cat}>
+                    {cat}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="text-sm font-medium text-foreground block mb-2">
+                Related Need <span className="text-muted-foreground text-xs">(optional)</span>
+              </label>
+              <select
+                className="w-full px-3 py-2 border border-input rounded-lg bg-background text-foreground"
+                value={questionId}
+                onChange={(e) => setQuestionId(e.target.value)}
+                disabled={isSubmitting || loadingQuestions}
+              >
+                <option value="">None - General content</option>
+                {loadingQuestions ? (
+                  <option disabled>Loading needs...</option>
+                ) : (
+                  questions.map((q) => (
+                    <option key={q._id} value={q._id}>
+                      {q.needLabel || q.needKey}
+                    </option>
+                  ))
+                )}
+              </select>
+              <p className="text-xs text-muted-foreground mt-1">
+                Link this video to a specific need from the assessment
+              </p>
             </div>
             <div>
               <label className="text-sm font-medium text-foreground block mb-2">

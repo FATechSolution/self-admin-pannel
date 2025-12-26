@@ -98,6 +98,13 @@ export function ViewAudioModal({ isOpen, onClose, audio }: ViewAudioModalProps) 
               </div>
 
               <div>
+                <label className="text-sm font-medium text-foreground block mb-2">Related Need</label>
+                <p className="text-sm text-muted-foreground bg-secondary/30 p-3 rounded-lg">
+                  {audio.needLabel || audio.needKey || <span className="text-muted-foreground/60">None</span>}
+                </p>
+              </div>
+
+              <div>
                 <label className="text-sm font-medium text-foreground block mb-2">Status</label>
                 <p className="text-sm">
                   <span

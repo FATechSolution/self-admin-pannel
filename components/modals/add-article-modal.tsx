@@ -1,12 +1,12 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { motion } from "framer-motion"
 import { X } from "lucide-react"
 import { Input } from "@/components/ui/input"
-import { createArticle } from "@/lib/api"
+import { createArticle, CONTENT_CATEGORIES, type ContentCategory } from "@/lib/api"
 
 interface AddArticleModalProps {
   isOpen: boolean
@@ -14,14 +14,47 @@ interface AddArticleModalProps {
   onSuccess?: () => void
 }
 
+interface Question {
+  _id: string
+  needKey: string
+  needLabel: string
+  questionText: string
+}
+
 export function AddArticleModal({ isOpen, onClose, onSuccess }: AddArticleModalProps) {
   const [title, setTitle] = useState("")
   const [content, setContent] = useState("")
-  const [category, setCategory] = useState("")
+  const [category, setCategory] = useState<ContentCategory>("Survival")
+  const [questionId, setQuestionId] = useState("")
+  const [questions, setQuestions] = useState<Question[]>([])
+  const [loadingQuestions, setLoadingQuestions] = useState(false)
   const [readTimeMinutes, setReadTimeMinutes] = useState("")
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  // Fetch questions when category changes
+  useEffect(() => {
+    const fetchQuestions = async () => {
+      if (!category) return
+      
+      setLoadingQuestions(true)
+      try {
+        const response = await fetch(`/api/goals/needs/${category}`)
+        const data = await response.json()
+        if (data.success) {
+          setQuestions(data.data || [])
+        }
+      } catch (err) {
+        console.error("Failed to fetch questions:", err)
+        setQuestions([])
+      } finally {
+        setLoadingQuestions(false)
+      }
+    }
+
+    fetchQuestions()
+  }, [category])
 
   if (!isOpen) return null
 
@@ -39,6 +72,11 @@ export function AddArticleModal({ isOpen, onClose, onSuccess }: AddArticleModalP
       return
     }
 
+    if (!category) {
+      setError("Category is required")
+      return
+    }
+
     if (!readTimeMinutes || isNaN(Number(readTimeMinutes)) || Number(readTimeMinutes) <= 0) {
       setError("Valid read time in minutes is required")
       return
@@ -50,7 +88,8 @@ export function AddArticleModal({ isOpen, onClose, onSuccess }: AddArticleModalP
       await createArticle({
         title: title.trim(),
         content: content.trim(),
-        category: category.trim() || undefined,
+        category: category,
+        questionId: questionId || undefined,
         readTimeMinutes: Number(readTimeMinutes),
         thumbnail: thumbnailFile || undefined,
       })
@@ -58,7 +97,8 @@ export function AddArticleModal({ isOpen, onClose, onSuccess }: AddArticleModalP
       // Reset form
       setTitle("")
       setContent("")
-      setCategory("")
+      setCategory("Survival")
+      setQuestionId("")
       setReadTimeMinutes("")
       setThumbnailFile(null)
       setError(null)

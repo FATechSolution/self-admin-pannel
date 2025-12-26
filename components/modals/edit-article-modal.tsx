@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { motion } from "framer-motion"
 import { X } from "lucide-react"
 import { Input } from "@/components/ui/input"
-import { updateArticle, type AdminArticle } from "@/lib/api"
+import { updateArticle, type AdminArticle, CONTENT_CATEGORIES, type ContentCategory, type Question } from "@/lib/api"
 
 interface EditArticleModalProps {
   isOpen: boolean
@@ -18,18 +18,44 @@ interface EditArticleModalProps {
 export function EditArticleModal({ isOpen, onClose, article, onSuccess }: EditArticleModalProps) {
   const [title, setTitle] = useState("")
   const [content, setContent] = useState("")
-  const [category, setCategory] = useState("")
+  const [category, setCategory] = useState<ContentCategory>("Survival")
+  const [questionId, setQuestionId] = useState("")
+  const [questions, setQuestions] = useState<Question[]>([])
+  const [loadingQuestions, setLoadingQuestions] = useState(false)
   const [readTimeMinutes, setReadTimeMinutes] = useState("")
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null)
   const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+  // Load questions when category changes
+  useEffect(() => {
+    const loadQuestions = async () => {
+      if (!category) return
+
+      setLoadingQuestions(true)
+      try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/goals/needs/${category}`)
+        if (!response.ok) throw new Error("Failed to fetch questions")
+        const data = await response.json()
+        setQuestions(data.data || [])
+      } catch (err) {
+        console.error("Failed to load questions:", err)
+        setQuestions([])
+      } finally {
+        setLoadingQuestions(false)
+      }
+    }
+
+    loadQuestions()
+  }, [category])
+
   useEffect(() => {
     if (article) {
       setTitle(article.title)
       setContent(article.content)
-      setCategory(article.category || "")
+      setCategory((article.category as ContentCategory) || "Survival")
+      setQuestionId(article.questionId || "")
       setReadTimeMinutes(String(article.readTimeMinutes))
       setThumbnailFile(null)
       setThumbnailPreview(article.thumbnailUrl || null)
@@ -53,6 +79,11 @@ export function EditArticleModal({ isOpen, onClose, article, onSuccess }: EditAr
       return
     }
 
+    if (!category) {
+      setError("Category is required")
+      return
+    }
+
     if (!readTimeMinutes || isNaN(Number(readTimeMinutes)) || Number(readTimeMinutes) <= 0) {
       setError("Valid read time in minutes is required")
       return
@@ -64,7 +95,8 @@ export function EditArticleModal({ isOpen, onClose, article, onSuccess }: EditAr
       await updateArticle(article.id, {
         title: title.trim(),
         content: content.trim(),
-        category: category.trim() || undefined,
+        category: category,
+        questionId: questionId || undefined,
         readTimeMinutes: Number(readTimeMinutes),
         thumbnail: thumbnailFile || undefined,
       })
@@ -138,13 +170,50 @@ export function EditArticleModal({ isOpen, onClose, article, onSuccess }: EditAr
               />
             </div>
             <div>
-              <label className="text-sm font-medium text-foreground block mb-2">Category</label>
-              <Input
-                placeholder="Enter category"
+              <label className="text-sm font-medium text-foreground block mb-2">
+                Category <span className="text-destructive">*</span>
+              </label>
+              <select
+                className="w-full px-3 py-2 border border-input rounded-lg bg-background text-foreground"
                 value={category}
-                onChange={(e) => setCategory(e.target.value)}
+                onChange={(e) => {
+                  setCategory(e.target.value as ContentCategory)
+                  setQuestionId("") // Reset question when category changes
+                }}
+                required
                 disabled={isSubmitting}
-              />
+              >
+                {CONTENT_CATEGORIES.map((cat) => (
+                  <option key={cat} value={cat}>
+                    {cat}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="text-sm font-medium text-foreground block mb-2">
+                Related Need <span className="text-muted-foreground text-xs">(optional)</span>
+              </label>
+              <select
+                className="w-full px-3 py-2 border border-input rounded-lg bg-background text-foreground"
+                value={questionId}
+                onChange={(e) => setQuestionId(e.target.value)}
+                disabled={isSubmitting || loadingQuestions}
+              >
+                <option value="">None - General content</option>
+                {loadingQuestions ? (
+                  <option disabled>Loading needs...</option>
+                ) : (
+                  questions.map((q) => (
+                    <option key={q._id} value={q._id}>
+                      {q.needLabel || q.needKey}
+                    </option>
+                  ))
+                )}
+              </select>
+              <p className="text-xs text-muted-foreground mt-1">
+                Link this article to a specific need from the assessment
+              </p>
             </div>
             <div>
               <label className="text-sm font-medium text-foreground block mb-2">

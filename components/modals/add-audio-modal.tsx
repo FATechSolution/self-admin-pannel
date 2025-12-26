@@ -1,12 +1,12 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { motion } from "framer-motion"
 import { X } from "lucide-react"
 import { Input } from "@/components/ui/input"
-import { createAudio } from "@/lib/api"
+import { createAudio, CONTENT_CATEGORIES, type ContentCategory } from "@/lib/api"
 
 interface AddAudioModalProps {
   isOpen: boolean
@@ -14,10 +14,20 @@ interface AddAudioModalProps {
   onSuccess?: () => void
 }
 
+interface Question {
+  _id: string
+  needKey: string
+  needLabel: string
+  questionText: string
+}
+
 export function AddAudioModal({ isOpen, onClose, onSuccess }: AddAudioModalProps) {
   const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
-  const [category, setCategory] = useState("")
+  const [category, setCategory] = useState<ContentCategory>("Survival")
+  const [questionId, setQuestionId] = useState("")
+  const [questions, setQuestions] = useState<Question[]>([])
+  const [loadingQuestions, setLoadingQuestions] = useState(false)
   const [durationSeconds, setDurationSeconds] = useState("")
   const [sortOrder, setSortOrder] = useState("")
   const [isActive, setIsActive] = useState(true)
@@ -28,6 +38,30 @@ export function AddAudioModal({ isOpen, onClose, onSuccess }: AddAudioModalProps
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+  // Fetch questions when category changes
+  useEffect(() => {
+    const fetchQuestions = async () => {
+      if (!category) return
+      
+      setLoadingQuestions(true)
+      try {
+        // Fetch questions for the selected category
+        const response = await fetch(`/api/goals/needs/${category}`)
+        const data = await response.json()
+        if (data.success) {
+          setQuestions(data.data || [])
+        }
+      } catch (err) {
+        console.error("Failed to fetch questions:", err)
+        setQuestions([])
+      } finally {
+        setLoadingQuestions(false)
+      }
+    }
+
+    fetchQuestions()
+  }, [category])
+
   if (!isOpen) return null
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -36,6 +70,11 @@ export function AddAudioModal({ isOpen, onClose, onSuccess }: AddAudioModalProps
 
     if (!title.trim()) {
       setError("Title is required")
+      return
+    }
+
+    if (!category) {
+      setError("Category is required")
       return
     }
 
@@ -55,7 +94,8 @@ export function AddAudioModal({ isOpen, onClose, onSuccess }: AddAudioModalProps
       await createAudio({
         title: title.trim(),
         description: description.trim() || undefined,
-        category: category.trim() || undefined,
+        category: category,
+        questionId: questionId || undefined,
         durationSeconds: Number(durationSeconds),
         sortOrder: sortOrder ? Number(sortOrder) : 0,
         isActive,
@@ -68,7 +108,8 @@ export function AddAudioModal({ isOpen, onClose, onSuccess }: AddAudioModalProps
       // Reset form
       setTitle("")
       setDescription("")
-      setCategory("")
+      setCategory("Survival")
+      setQuestionId("")
       setDurationSeconds("")
       setSortOrder("")
       setIsActive(true)
@@ -142,13 +183,50 @@ export function AddAudioModal({ isOpen, onClose, onSuccess }: AddAudioModalProps
               />
             </div>
             <div>
-              <label className="text-sm font-medium text-foreground block mb-2">Category</label>
-              <Input
-                placeholder="Enter category"
+              <label className="text-sm font-medium text-foreground block mb-2">
+                Category <span className="text-destructive">*</span>
+              </label>
+              <select
+                className="w-full px-3 py-2 border border-input rounded-lg bg-background text-foreground"
                 value={category}
-                onChange={(e) => setCategory(e.target.value)}
+                onChange={(e) => {
+                  setCategory(e.target.value as ContentCategory)
+                  setQuestionId("") // Reset question when category changes
+                }}
+                required
                 disabled={isSubmitting}
-              />
+              >
+                {CONTENT_CATEGORIES.map((cat) => (
+                  <option key={cat} value={cat}>
+                    {cat}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="text-sm font-medium text-foreground block mb-2">
+                Related Need <span className="text-muted-foreground text-xs">(optional)</span>
+              </label>
+              <select
+                className="w-full px-3 py-2 border border-input rounded-lg bg-background text-foreground"
+                value={questionId}
+                onChange={(e) => setQuestionId(e.target.value)}
+                disabled={isSubmitting || loadingQuestions}
+              >
+                <option value="">None - General content</option>
+                {loadingQuestions ? (
+                  <option disabled>Loading needs...</option>
+                ) : (
+                  questions.map((q) => (
+                    <option key={q._id} value={q._id}>
+                      {q.needLabel || q.needKey}
+                    </option>
+                  ))
+                )}
+              </select>
+              <p className="text-xs text-muted-foreground mt-1">
+                Link this audio to a specific need from the assessment
+              </p>
             </div>
             <div>
               <label className="text-sm font-medium text-foreground block mb-2">

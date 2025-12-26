@@ -193,6 +193,7 @@ export function AudioSection() {
                     <th className="px-6 py-3 text-left text-sm font-semibold text-foreground">Title</th>
                     <th className="px-6 py-3 text-left text-sm font-semibold text-foreground">Duration</th>
                     <th className="px-6 py-3 text-left text-sm font-semibold text-foreground">Category</th>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-foreground">Related Need</th>
                     <th className="px-6 py-3 text-left text-sm font-semibold text-foreground">Status</th>
                     <th className="px-6 py-3 text-left text-sm font-semibold text-foreground">Actions</th>
                   </tr>
@@ -212,6 +213,9 @@ export function AudioSection() {
                       </td>
                       <td className="px-6 py-4 text-sm text-muted-foreground">
                         {audio.category || <span className="text-muted-foreground/60">—</span>}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-muted-foreground">
+                        {audio.needLabel || audio.needKey || <span className="text-muted-foreground/60">—</span>}
                       </td>
                       <td className="px-6 py-4 text-sm">
                         <span

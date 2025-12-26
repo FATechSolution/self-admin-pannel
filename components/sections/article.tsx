@@ -188,6 +188,7 @@ export function ArticleSection() {
                     <th className="px-6 py-3 text-left text-sm font-semibold text-foreground">Title</th>
                     <th className="px-6 py-3 text-left text-sm font-semibold text-foreground">Read Time</th>
                     <th className="px-6 py-3 text-left text-sm font-semibold text-foreground">Category</th>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-foreground">Related Need</th>
                     <th className="px-6 py-3 text-left text-sm font-semibold text-foreground">Status</th>
                     <th className="px-6 py-3 text-left text-sm font-semibold text-foreground">Actions</th>
                   </tr>
@@ -207,6 +208,9 @@ export function ArticleSection() {
                       </td>
                       <td className="px-6 py-4 text-sm text-muted-foreground">
                         {article.category || <span className="text-muted-foreground/60">—</span>}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-muted-foreground">
+                        {article.needLabel || article.needKey || <span className="text-muted-foreground/60">—</span>}
                       </td>
                       <td className="px-6 py-4 text-sm">
                         <span
