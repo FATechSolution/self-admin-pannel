@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { motion } from "framer-motion"
 import { X } from "lucide-react"
 import { Input } from "@/components/ui/input"
-import { updateVideo, type AdminVideo, CONTENT_CATEGORIES, type ContentCategory, type Question } from "@/lib/api"
+import { updateVideo, type AdminVideo, CONTENT_CATEGORIES, type ContentCategory, type Question, fetchQuestionsByCategory } from "@/lib/api"
 
 interface EditVideoModalProps {
   isOpen: boolean
@@ -39,10 +39,8 @@ export function EditVideoModal({ isOpen, onClose, video, onSuccess }: EditVideoM
 
       setLoadingQuestions(true)
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/goals/needs/${category}`)
-        if (!response.ok) throw new Error("Failed to fetch questions")
-        const data = await response.json()
-        setQuestions(data.data || [])
+        const data = await fetchQuestionsByCategory(category)
+        setQuestions(data)
       } catch (err) {
         console.error("Failed to load questions:", err)
         setQuestions([])
@@ -206,7 +204,7 @@ export function EditVideoModal({ isOpen, onClose, video, onSuccess }: EditVideoM
                   <option disabled>Loading needs...</option>
                 ) : (
                   questions.map((q) => (
-                    <option key={q._id} value={q._id}>
+                    <option key={q.questionId} value={q.questionId}>
                       {q.needLabel || q.needKey}
                     </option>
                   ))

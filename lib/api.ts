@@ -1,6 +1,6 @@
 import { auth } from "./auth"
 
-const DEFAULT_API_BASE_URL = "https://self-actualization-analysis-be.vercel.app"
+const DEFAULT_API_BASE_URL = "http://3.26.225.122:5005"
 
 export const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL || DEFAULT_API_BASE_URL
@@ -15,6 +15,14 @@ export const CONTENT_CATEGORIES: ContentCategory[] = [
   "Self",
   "Meta-Needs"
 ]
+
+export type Question = {
+  needKey: string
+  needLabel: string
+  needOrder?: number
+  category: string
+  questionId: string
+}
 
 // Admin types
 export type Admin = {
@@ -542,28 +550,6 @@ export async function deleteArticle(id: string): Promise<void> {
 
 // Admin Authentication APIs
 
-export type Admin = {
-  id: string
-  name: string
-  email: string
-}
-
-type AdminLoginResponse = {
-  success: boolean
-  message: string
-  data: {
-    admin: Admin
-    token: string
-  }
-}
-
-type AdminMeResponse = {
-  success: boolean
-  data: {
-    admin: Admin
-  }
-}
-
 /**
  * Login admin user
  */
@@ -734,3 +720,17 @@ export async function registerAdmin(
 }
 
 
+
+/**
+ * Fetch questions/needs by category
+ */
+export async function fetchQuestionsByCategory(category: ContentCategory): Promise<Question[]> {
+  const res = await apiFetch<{ success: boolean; data: Question[] }>(
+    `/api/goals/needs/${category}`,
+    {
+      method: "GET",
+    },
+    { auth: true }
+  )
+  return res.data || []
+}

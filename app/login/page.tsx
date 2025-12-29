@@ -19,10 +19,10 @@ export default function LoginPage() {
     e.preventDefault()
     setIsLoading(true)
     setError(null)
-    
+
     try {
       const response = await loginAdmin(email.trim(), password)
-      
+
       if (response.success && response.data.token) {
         // Token is automatically stored by loginAdmin function
         // Redirect to dashboard after successful login

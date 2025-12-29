@@ -6,19 +6,12 @@ import { Button } from "@/components/ui/button"
 import { motion } from "framer-motion"
 import { X } from "lucide-react"
 import { Input } from "@/components/ui/input"
-import { createAudio, CONTENT_CATEGORIES, type ContentCategory } from "@/lib/api"
+import { createAudio, CONTENT_CATEGORIES, type ContentCategory, type Question, fetchQuestionsByCategory } from "@/lib/api"
 
 interface AddAudioModalProps {
   isOpen: boolean
   onClose: () => void
   onSuccess?: () => void
-}
-
-interface Question {
-  _id: string
-  needKey: string
-  needLabel: string
-  questionText: string
 }
 
 export function AddAudioModal({ isOpen, onClose, onSuccess }: AddAudioModalProps) {
@@ -45,12 +38,8 @@ export function AddAudioModal({ isOpen, onClose, onSuccess }: AddAudioModalProps
       
       setLoadingQuestions(true)
       try {
-        // Fetch questions for the selected category
-        const response = await fetch(`/api/goals/needs/${category}`)
-        const data = await response.json()
-        if (data.success) {
-          setQuestions(data.data || [])
-        }
+        const data = await fetchQuestionsByCategory(category)
+        setQuestions(data)
       } catch (err) {
         console.error("Failed to fetch questions:", err)
         setQuestions([])
@@ -218,7 +207,7 @@ export function AddAudioModal({ isOpen, onClose, onSuccess }: AddAudioModalProps
                   <option disabled>Loading needs...</option>
                 ) : (
                   questions.map((q) => (
-                    <option key={q._id} value={q._id}>
+                    <option key={q.questionId} value={q.questionId}>
                       {q.needLabel || q.needKey}
                     </option>
                   ))

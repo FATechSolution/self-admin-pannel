@@ -6,19 +6,12 @@ import { Button } from "@/components/ui/button"
 import { motion } from "framer-motion"
 import { X } from "lucide-react"
 import { Input } from "@/components/ui/input"
-import { createArticle, CONTENT_CATEGORIES, type ContentCategory } from "@/lib/api"
+import { createArticle, CONTENT_CATEGORIES, type ContentCategory, type Question, fetchQuestionsByCategory } from "@/lib/api"
 
 interface AddArticleModalProps {
   isOpen: boolean
   onClose: () => void
   onSuccess?: () => void
-}
-
-interface Question {
-  _id: string
-  needKey: string
-  needLabel: string
-  questionText: string
 }
 
 export function AddArticleModal({ isOpen, onClose, onSuccess }: AddArticleModalProps) {
@@ -40,11 +33,8 @@ export function AddArticleModal({ isOpen, onClose, onSuccess }: AddArticleModalP
       
       setLoadingQuestions(true)
       try {
-        const response = await fetch(`/api/goals/needs/${category}`)
-        const data = await response.json()
-        if (data.success) {
-          setQuestions(data.data || [])
-        }
+        const data = await fetchQuestionsByCategory(category)
+        setQuestions(data)
       } catch (err) {
         console.error("Failed to fetch questions:", err)
         setQuestions([])
@@ -172,13 +162,50 @@ export function AddArticleModal({ isOpen, onClose, onSuccess }: AddArticleModalP
               />
             </div>
             <div>
-              <label className="text-sm font-medium text-foreground block mb-2">Category</label>
-              <Input
-                placeholder="Enter category"
+              <label className="text-sm font-medium text-foreground block mb-2">
+                Category <span className="text-destructive">*</span>
+              </label>
+              <select
+                className="w-full px-3 py-2 border border-input rounded-lg bg-background text-foreground"
                 value={category}
-                onChange={(e) => setCategory(e.target.value)}
+                onChange={(e) => {
+                  setCategory(e.target.value as ContentCategory)
+                  setQuestionId("") // Reset question when category changes
+                }}
+                required
                 disabled={isSubmitting}
-              />
+              >
+                {CONTENT_CATEGORIES.map((cat) => (
+                  <option key={cat} value={cat}>
+                    {cat}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="text-sm font-medium text-foreground block mb-2">
+                Related Need <span className="text-muted-foreground text-xs">(optional)</span>
+              </label>
+              <select
+                className="w-full px-3 py-2 border border-input rounded-lg bg-background text-foreground"
+                value={questionId}
+                onChange={(e) => setQuestionId(e.target.value)}
+                disabled={isSubmitting || loadingQuestions}
+              >
+                <option value="">None - General content</option>
+                {loadingQuestions ? (
+                  <option disabled>Loading needs...</option>
+                ) : (
+                  questions.map((q) => (
+                    <option key={q.questionId} value={q.questionId}>
+                      {q.needLabel || q.needKey}
+                    </option>
+                  ))
+                )}
+              </select>
+              <p className="text-xs text-muted-foreground mt-1">
+                Link this article to a specific need from the assessment
+              </p>
             </div>
             <div>
               <label className="text-sm font-medium text-foreground block mb-2">
