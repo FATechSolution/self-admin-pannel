@@ -32,10 +32,17 @@ export function EditArticleModal({ isOpen, onClose, article, onSuccess }: EditAr
   useEffect(() => {
     const loadQuestions = async () => {
       if (!category) return
+      
+      // Validate category is one of the allowed categories
+      const validCategories: ContentCategory[] = ["Survival", "Safety", "Social", "Self", "Meta-Needs"]
+      if (!validCategories.includes(category as ContentCategory)) {
+        setQuestions([])
+        return
+      }
 
       setLoadingQuestions(true)
       try {
-        const data = await fetchQuestionsByCategory(category)
+        const data = await fetchQuestionsByCategory(category as ContentCategory)
         setQuestions(data)
       } catch (err) {
         console.error("Failed to load questions:", err)
@@ -52,7 +59,10 @@ export function EditArticleModal({ isOpen, onClose, article, onSuccess }: EditAr
     if (article) {
       setTitle(article.title)
       setContent(article.content)
-      setCategory((article.category as ContentCategory) || "Survival")
+      // Validate and set category - ensure it's one of the valid categories
+      const validCategories: ContentCategory[] = ["Survival", "Safety", "Social", "Self", "Meta-Needs"]
+      const articleCategory = article.category as ContentCategory
+      setCategory(validCategories.includes(articleCategory) ? articleCategory : "Survival")
       setQuestionId(article.questionId || "")
       setReadTimeMinutes(String(article.readTimeMinutes))
       setThumbnailFile(null)

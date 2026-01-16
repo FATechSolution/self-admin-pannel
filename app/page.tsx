@@ -46,15 +46,22 @@ export default function Home() {
         
         // Check URL params for section (only in browser)
         if (typeof window !== "undefined") {
+          const validSections = ["dashboard", "users", "audios", "videos", "articles"]
           const params = new URLSearchParams(window.location.search)
           const sectionParam = params.get("section")
           
-          if (sectionParam) {
+          if (sectionParam && validSections.includes(sectionParam)) {
             setActiveSection(sectionParam)
           } else {
             const savedSection = localStorage.getItem("activeSection")
-            if (savedSection) {
+            if (savedSection && validSections.includes(savedSection)) {
               setActiveSection(savedSection)
+            } else {
+              // Clear invalid section from localStorage
+              if (savedSection) {
+                localStorage.removeItem("activeSection")
+              }
+              setActiveSection("dashboard")
             }
           }
         }

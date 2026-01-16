@@ -14,7 +14,6 @@ export function Sidebar({ activeSection, setActiveSection, isOpen, setIsOpen }: 
   const menuItems = [
     { id: "dashboard", label: "Dashboard", icon: Menu },
     { id: "users", label: "User Management", icon: Users },
-    { id: "learn-grow", label: "Learn & Grow", icon: FileText },
     { id: "audios", label: "Audios", icon: Music },
     { id: "videos", label: "Videos", icon: Video },
     { id: "articles", label: "Articles", icon: FileText },
@@ -98,7 +97,7 @@ export function Sidebar({ activeSection, setActiveSection, isOpen, setIsOpen }: 
 
           {/* Footer */}
           <div className="pt-2 sm:pt-3 md:pt-4 border-t border-sidebar-border">
-            <p className="text-xs text-sidebar-foreground/60 truncate text-center md:text-left">© 2025 SA</p>
+            <p className="text-xs text-sidebar-foreground/60 truncate text-center md:text-left">Â© 2025 SA</p>
           </div>
         </div>
       </motion.aside>

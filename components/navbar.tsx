@@ -18,7 +18,6 @@ export function Navbar({ sidebarOpen, setSidebarOpen, activeSection }: NavbarPro
     const sections: Record<string, string> = {
       dashboard: "Dashboard",
       users: "User Management",
-      "learn-grow": "Learn & Grow",
       audios: "Audios",
       videos: "Videos",
       articles: "Articles",

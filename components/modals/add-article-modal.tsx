@@ -7,6 +7,7 @@ import { motion } from "framer-motion"
 import { X } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { createArticle, CONTENT_CATEGORIES, type ContentCategory, type Question, fetchQuestionsByCategory } from "@/lib/api"
+import { toast } from "sonner"
 
 interface AddArticleModalProps {
   isOpen: boolean

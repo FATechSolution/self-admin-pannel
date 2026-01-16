@@ -36,10 +36,17 @@ export function EditAudioModal({ isOpen, onClose, audio, onSuccess }: EditAudioM
   useEffect(() => {
     const loadQuestions = async () => {
       if (!category) return
+      
+      // Validate category is one of the allowed categories
+      const validCategories: ContentCategory[] = ["Survival", "Safety", "Social", "Self", "Meta-Needs"]
+      if (!validCategories.includes(category as ContentCategory)) {
+        setQuestions([])
+        return
+      }
 
       setLoadingQuestions(true)
       try {
-        const data = await fetchQuestionsByCategory(category)
+        const data = await fetchQuestionsByCategory(category as ContentCategory)
         setQuestions(data)
       } catch (err) {
         console.error("Failed to load questions:", err)
@@ -56,7 +63,10 @@ export function EditAudioModal({ isOpen, onClose, audio, onSuccess }: EditAudioM
     if (audio) {
       setTitle(audio.title)
       setDescription(audio.description || "")
-      setCategory((audio.category as ContentCategory) || "Survival")
+      // Validate and set category - ensure it's one of the valid categories
+      const validCategories: ContentCategory[] = ["Survival", "Safety", "Social", "Self", "Meta-Needs"]
+      const audioCategory = audio.category as ContentCategory
+      setCategory(validCategories.includes(audioCategory) ? audioCategory : "Survival")
       setQuestionId(audio.questionId || "")
       setDurationSeconds(String(audio.durationSeconds))
       setAudioFile(null)
