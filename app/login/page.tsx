@@ -21,7 +21,9 @@ export default function LoginPage() {
     setError(null)
 
     try {
+      console.log("Attempting login with email:", email)
       const response = await loginAdmin(email.trim(), password)
+      console.log("Login response:", response)
 
       if (response.success && response.data.token) {
         // Token is automatically stored by loginAdmin function
