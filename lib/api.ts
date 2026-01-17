@@ -728,12 +728,18 @@ export async function registerAdmin(
  * Fetch questions/needs by category
  */
 export async function fetchQuestionsByCategory(category: ContentCategory): Promise<Question[]> {
-  const res = await apiFetch<{ success: boolean; data: Question[] }>(
-    `/api/goals/needs/${category}`,
-    {
-      method: "GET",
-    },
-    { auth: true }
-  )
-  return res.data || []
+  try {
+    const res = await apiFetch<{ success: boolean; data: Question[] }>(
+      `/api/goals/needs/${category}`,
+      {
+        method: "GET",
+      },
+      { auth: true }
+    )
+    return res.data || []
+  } catch (error) {
+    // Silently return empty array if endpoint is not available
+    console.debug("Questions endpoint not available for admins:", error)
+    return []
+  }
 }
