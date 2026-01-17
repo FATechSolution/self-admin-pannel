@@ -36,7 +36,7 @@ export function Dashboard({ activeSection }: DashboardProps) {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      className="p-4 md:p-6 max-w-7xl mx-auto w-full"
+      className="p-3 sm:p-4 md:p-6 w-full max-w-full"
     >
       <Suspense fallback={<SectionFallback />}>
         {activeSection === "dashboard" && <DashboardOverview />}

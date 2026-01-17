@@ -63,10 +63,10 @@ export function DashboardOverview() {
   }
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-96">
-        <div className="flex items-center gap-2 text-muted-foreground">
-          <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-          <span>Loading dashboard statistics...</span>
+      <div className="flex items-center justify-center h-64 sm:h-96">
+        <div className="flex flex-col items-center gap-3 text-muted-foreground">
+          <div className="w-8 h-8 sm:w-6 sm:h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+          <span className="text-sm sm:text-base">Loading dashboard statistics...</span>
         </div>
       </div>
     )
@@ -74,29 +74,29 @@ export function DashboardOverview() {
 
   if (error) {
     return (
-      <Card className="p-6 border-destructive/40 bg-destructive/5 text-destructive">
-        <p className="font-medium mb-2">Failed to load dashboard statistics</p>
-        <p className="text-sm">{error}</p>
+      <Card className="p-4 sm:p-6 border-destructive/40 bg-destructive/5 text-destructive">
+        <p className="font-medium mb-2 text-sm sm:text-base">Failed to load dashboard statistics</p>
+        <p className="text-xs sm:text-sm">{error}</p>
       </Card>
     )
   }
 
   return (
-    <motion.div variants={containerVariants} initial="hidden" animate="visible" className="space-y-6">
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <motion.div variants={containerVariants} initial="hidden" animate="visible" className="space-y-4 sm:space-y-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {statsConfig.map((stat) => {
           const Icon = stat.icon
           return (
             <motion.div key={stat.label} variants={itemVariants}>
-              <Card className="p-8 md:p-10 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 relative overflow-hidden group cursor-pointer">
+              <Card className="p-4 sm:p-6 md:p-8 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 relative overflow-hidden group cursor-pointer h-full">
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <div className="relative z-10 flex items-center justify-between">
-                  <div>
-                    <p className="text-xs md:text-sm text-muted-foreground">{stat.label}</p>
-                    <p className="text-xl md:text-2xl font-bold text-foreground mt-2">{stat.value}</p>
+                <div className="relative z-10 flex items-center justify-between gap-3">
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs sm:text-sm text-muted-foreground line-clamp-1">{stat.label}</p>
+                    <p className="text-lg sm:text-xl md:text-2xl font-bold text-foreground mt-1 sm:mt-2 break-words">{stat.value}</p>
                   </div>
-                  <div className={`w-12 h-12 md:w-14 md:h-14 rounded-lg ${stat.color} flex items-center justify-center`}>
-                    <Icon size={22} className="md:w-7 md:h-7 text-primary" />
+                  <div className={`w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-lg ${stat.color} flex items-center justify-center flex-shrink-0`}>
+                    <Icon size={18} className="sm:w-5 sm:h-5 md:w-7 md:h-7 text-primary" />
                   </div>
                 </div>
               </Card>

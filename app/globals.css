@@ -121,5 +121,34 @@
   }
   body {
     @apply bg-background text-foreground;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Mobile touch optimizations */
+  @media (max-width: 640px) {
+    body {
+      font-size: 16px; /* Prevent zoom on iOS */
+    }
+    
+    button, a, input[type="button"], input[type="submit"] {
+      min-height: 44px; /* Touch-friendly size */
+      min-width: 44px;
+    }
+
+    input, textarea, select {
+      min-height: 44px; /* Touch-friendly inputs */
+    }
+  }
+
+  /* Smooth scrolling */
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Prevent horizontal scroll on mobile */
+  body, html {
+    overflow-x: hidden;
+    width: 100%;
   }
 }

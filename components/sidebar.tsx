@@ -37,9 +37,9 @@ export function Sidebar({ activeSection, setActiveSection, isOpen, setIsOpen }: 
       {/* Sidebar */}
       <motion.aside
         initial={false}
-        animate={{ x: isOpen ? 0 : -300 }}
-        transition={{ type: "spring", stiffness: 300, damping: 30 }}
-        className="fixed left-0 top-0 h-screen w-64 bg-sidebar border-r border-sidebar-border z-50 lg:static lg:z-auto lg:transform-none transform-none! shadow-lg flex flex-col"
+        animate={{ x: isOpen ? 0 : -280 }}
+        transition={{ type: "spring", stiffness: 400, damping: 40 }}
+        className="fixed left-0 top-0 h-screen w-72 md:w-64 bg-sidebar border-r border-sidebar-border z-50 lg:static lg:z-auto lg:translate-x-0 transform shadow-2xl lg:shadow-lg flex flex-col overflow-y-auto"
       >
         <div className="flex flex-col h-full p-3 sm:p-4 md:p-6">
           {/* Logo/Header */}

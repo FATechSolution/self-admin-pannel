@@ -93,17 +93,17 @@ export default function Home() {
   // Show loading while checking authentication
   if (isChecking || !mounted || !isAuthenticated) {
     return (
-      <div className="flex h-screen bg-background w-full items-center justify-center">
+      <div className="flex h-screen bg-background w-full items-center justify-center px-4">
         <div className="flex flex-col items-center gap-4">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-          <p className="text-sm text-muted-foreground">Checking authentication...</p>
+          <p className="text-sm text-muted-foreground text-center">Checking authentication...</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="flex h-screen bg-background w-full">
+    <div className="flex h-screen bg-background w-full flex-col lg:flex-row">
       <Sidebar
         activeSection={activeSection}
         setActiveSection={setActiveSection}
@@ -111,9 +111,9 @@ export default function Home() {
         setIsOpen={setSidebarOpen}
       />
 
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden w-full">
         <Navbar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} activeSection={activeSection} />
-        <main className="flex-1 overflow-y-auto overflow-x-hidden w-full">
+        <main className="flex-1 overflow-y-auto overflow-x-hidden w-full bg-background">
           <Suspense fallback={<DashboardFallback />}>
             <Dashboard activeSection={activeSection} />
           </Suspense>
