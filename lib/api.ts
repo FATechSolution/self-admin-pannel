@@ -3,7 +3,7 @@ import { auth } from "./auth"
 const DEFAULT_API_BASE_URL = 
   typeof window !== 'undefined' && window.location.hostname === 'localhost'
     ? "http://3.26.225.122:5005"  // Use AWS for local development
-    : "https://self-actualization-analysis-be.vercel.app"  // Use Vercel for production
+    : "https://self-actualization-be.vercel.app"  // Use Vercel for production
 
 export const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL || DEFAULT_API_BASE_URL
