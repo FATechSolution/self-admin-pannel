@@ -2,6 +2,7 @@
 
 import { motion, AnimatePresence } from "framer-motion"
 import { Users, Music, Video, Menu, X, FileText } from "lucide-react"
+import { useEffect, useState } from "react"
 
 interface SidebarProps {
   activeSection: string
@@ -11,6 +12,20 @@ interface SidebarProps {
 }
 
 export function Sidebar({ activeSection, setActiveSection, isOpen, setIsOpen }: SidebarProps) {
+  const [isLargeScreen, setIsLargeScreen] = useState(false)
+
+  useEffect(() => {
+    // Check initial screen size
+    const checkScreenSize = () => {
+      setIsLargeScreen(window.innerWidth >= 1024)
+    }
+
+    checkScreenSize()
+
+    // Listen for window resize
+    window.addEventListener("resize", checkScreenSize)
+    return () => window.removeEventListener("resize", checkScreenSize)
+  }, [])
   const menuItems = [
     { id: "dashboard", label: "Dashboard", icon: Menu },
     { id: "users", label: "User Management", icon: Users },
@@ -37,9 +52,9 @@ export function Sidebar({ activeSection, setActiveSection, isOpen, setIsOpen }: 
       {/* Sidebar */}
       <motion.aside
         initial={false}
-        animate={{ x: isOpen ? 0 : -280 }}
+        animate={isLargeScreen ? false : { x: isOpen ? 0 : -280 }}
         transition={{ type: "spring", stiffness: 400, damping: 40 }}
-        className="fixed left-0 top-0 h-screen w-72 md:w-64 bg-sidebar border-r border-sidebar-border z-50 lg:static lg:z-auto lg:translate-x-0 transform shadow-2xl lg:shadow-lg flex flex-col overflow-y-auto"
+        className="fixed left-0 top-0 h-screen w-64 sm:w-72 lg:w-72 bg-sidebar border-r border-sidebar-border z-50 lg:static lg:z-auto transform shadow-2xl lg:shadow-none flex flex-col overflow-y-auto lg:!translate-x-0 lg:shrink-0"
       >
         <div className="flex flex-col h-full p-3 sm:p-4 md:p-6">
           {/* Logo/Header */}
@@ -66,7 +81,7 @@ export function Sidebar({ activeSection, setActiveSection, isOpen, setIsOpen }: 
             {menuItems.map((item) => {
               const Icon = item.icon
               const href = item.id === "dashboard" ? "/" : `/?section=${item.id}`
-              
+
               return (
                 <motion.a
                   key={item.id}
@@ -82,13 +97,12 @@ export function Sidebar({ activeSection, setActiveSection, isOpen, setIsOpen }: 
                   }}
                   whileHover={{ x: 4 }}
                   whileTap={{ scale: 0.98 }}
-                  className={`w-full flex items-center justify-start gap-3 px-3 py-2.5 rounded-lg transition-all text-sm cursor-pointer ${
-                    activeSection === item.id
+                  className={`w-full flex items-center justify-start gap-2 sm:gap-3 px-2.5 sm:px-3 py-2 sm:py-2.5 rounded-lg transition-all text-xs sm:text-sm cursor-pointer ${activeSection === item.id
                       ? "bg-sidebar-primary text-sidebar-primary-foreground font-medium shadow-md"
                       : "text-sidebar-foreground hover:bg-gray-100 hover:text-sidebar-primary"
-                  }`}
+                    }`}
                 >
-                  <Icon size={20} className="shrink-0" />
+                  <Icon size={18} className="sm:w-5 sm:h-5 shrink-0" />
                   <span className="font-medium truncate">{item.label}</span>
                 </motion.a>
               )
@@ -97,7 +111,7 @@ export function Sidebar({ activeSection, setActiveSection, isOpen, setIsOpen }: 
 
           {/* Footer */}
           <div className="pt-2 sm:pt-3 md:pt-4 border-t border-sidebar-border">
-            <p className="text-xs text-sidebar-foreground/60 truncate text-center md:text-left">Â© 2025 SA</p>
+            <p className="text-xs text-sidebar-foreground/60 truncate text-center md:text-left">© 2025 SA</p>
           </div>
         </div>
       </motion.aside>

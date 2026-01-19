@@ -120,13 +120,13 @@ export function ArticleSection() {
         )}
       </AnimatePresence>
 
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
-        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-3 sm:space-y-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:gap-4 sm:items-center sm:justify-between">
           <div className="w-full sm:flex-1 relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
             <Input
               placeholder="Search articles..."
-              className="pl-10"
+              className="pl-10 text-sm sm:text-base h-10 sm:h-11"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
@@ -134,28 +134,28 @@ export function ArticleSection() {
           <div className="flex gap-2 w-full sm:w-auto">
             <Button
               variant="outline"
-              className="gap-2 cursor-pointer"
+              className="gap-1.5 sm:gap-2 cursor-pointer flex-1 sm:flex-none text-xs sm:text-sm h-10 sm:h-11"
               onClick={() => setRefreshKey((k) => k + 1)}
               disabled={isLoading}
             >
-              <RefreshCcw className={isLoading ? "animate-spin" : ""} size={16} />
-              Refresh
+              <RefreshCcw className={isLoading ? "animate-spin" : ""} size={14} />
+              <span className="hidden xs:inline">Refresh</span>
             </Button>
-            <Button onClick={() => setShowAddArticle(true)} className="w-full sm:w-auto gap-2 cursor-pointer">
-              <Plus size={18} />
-              Add Article
+            <Button onClick={() => setShowAddArticle(true)} className="flex-1 sm:flex-none gap-1.5 sm:gap-2 cursor-pointer text-xs sm:text-sm h-10 sm:h-11">
+              <Plus size={16} />
+              <span>Add Article</span>
             </Button>
           </div>
         </div>
 
         {error && (
-          <Card className="p-4 border-destructive/40 bg-destructive/5 text-destructive text-sm">
-            <div className="flex items-start justify-between gap-3">
-              <p>{error}</p>
+          <Card className="p-3 sm:p-4 border-destructive/40 bg-destructive/5 text-destructive text-xs sm:text-sm">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-3">
+              <p className="flex-1">{error}</p>
               <Button
                 size="sm"
                 variant="outline"
-                className="border-destructive text-destructive hover:bg-destructive/10 cursor-pointer"
+                className="border-destructive text-destructive hover:bg-destructive/10 cursor-pointer w-full sm:w-auto"
                 onClick={() => setRefreshKey((k) => k + 1)}
               >
                 Retry
@@ -166,7 +166,7 @@ export function ArticleSection() {
 
         <Card className="overflow-hidden">
           {isLoading && (
-            <div className="py-10 flex items-center justify-center text-sm text-muted-foreground">
+            <div className="py-8 sm:py-10 flex items-center justify-center text-xs sm:text-sm text-muted-foreground">
               <div className="flex items-center gap-2">
                 <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
                 Loading articles...
@@ -175,22 +175,97 @@ export function ArticleSection() {
           )}
 
           {!isLoading && filteredArticles.length === 0 && !error && (
-            <div className="py-10 flex items-center justify-center text-sm text-muted-foreground">
+            <div className="py-8 sm:py-10 flex items-center justify-center text-xs sm:text-sm text-muted-foreground text-center px-4">
               No articles found. Try adjusting your search or add a new article.
             </div>
           )}
 
+          {/* Mobile Card View */}
           {!isLoading && filteredArticles.length > 0 && (
-            <div className="overflow-x-auto">
-              <table className="w-full">
+            <div className="block md:hidden divide-y divide-border">
+              {filteredArticles.map((article) => (
+                <motion.div
+                  key={article.id}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="p-3 sm:p-4 space-y-2 sm:space-y-3"
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0 flex-1">
+                      <h3 className="font-medium text-sm text-foreground line-clamp-2">{article.title}</h3>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {article.readTimeMinutes} {article.readTimeMinutes === 1 ? "min" : "mins"} read
+                      </p>
+                    </div>
+                    <span
+                      className={`px-2 py-0.5 rounded-full text-xs font-medium whitespace-nowrap ${
+                        article.isActive ? "bg-accent/20 text-accent" : "bg-secondary/50 text-foreground"
+                      }`}
+                    >
+                      {article.isActive ? "Published" : "Inactive"}
+                    </span>
+                  </div>
+                  <div className="flex flex-wrap gap-1.5 text-xs">
+                    {article.category && (
+                      <span className="px-2 py-0.5 bg-secondary/50 rounded text-muted-foreground">
+                        {article.category}
+                      </span>
+                    )}
+                    {(article.needLabel || article.needKey) && (
+                      <span className="px-2 py-0.5 bg-primary/10 rounded text-primary">
+                        {article.needLabel || article.needKey}
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex gap-1 pt-1">
+                    <button
+                      onClick={() => {
+                        setSelectedArticle(article)
+                        setShowViewArticle(true)
+                      }}
+                      className="flex-1 flex items-center justify-center gap-1.5 p-2 bg-primary/10 hover:bg-primary/20 rounded text-primary text-xs font-medium transition-colors cursor-pointer"
+                    >
+                      <Eye size={14} />
+                      View
+                    </button>
+                    <button
+                      onClick={() => {
+                        setSelectedArticle(article)
+                        setShowEditArticle(true)
+                      }}
+                      className="flex-1 flex items-center justify-center gap-1.5 p-2 bg-secondary/50 hover:bg-secondary rounded text-foreground text-xs font-medium transition-colors cursor-pointer"
+                    >
+                      <Edit2 size={14} />
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => {
+                        setSelectedArticle(article)
+                        setShowDeleteArticle(true)
+                      }}
+                      className="flex-1 flex items-center justify-center gap-1.5 p-2 bg-destructive/10 hover:bg-destructive/20 rounded text-destructive text-xs font-medium transition-colors cursor-pointer"
+                    >
+                      <Trash2 size={14} />
+                      Delete
+                    </button>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          )}
+
+          {/* Desktop Table View */}
+          {!isLoading && filteredArticles.length > 0 && (
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full min-w-[700px]">
                 <thead className="bg-secondary/50 border-b border-border">
                   <tr>
-                    <th className="px-6 py-3 text-left text-sm font-semibold text-foreground">Title</th>
-                    <th className="px-6 py-3 text-left text-sm font-semibold text-foreground">Read Time</th>
-                    <th className="px-6 py-3 text-left text-sm font-semibold text-foreground">Category</th>
-                    <th className="px-6 py-3 text-left text-sm font-semibold text-foreground">Related Need</th>
-                    <th className="px-6 py-3 text-left text-sm font-semibold text-foreground">Status</th>
-                    <th className="px-6 py-3 text-left text-sm font-semibold text-foreground">Actions</th>
+                    <th className="px-4 lg:px-6 py-3 text-left text-xs lg:text-sm font-semibold text-foreground">Title</th>
+                    <th className="px-4 lg:px-6 py-3 text-left text-xs lg:text-sm font-semibold text-foreground whitespace-nowrap">Read Time</th>
+                    <th className="px-4 lg:px-6 py-3 text-left text-xs lg:text-sm font-semibold text-foreground">Category</th>
+                    <th className="px-4 lg:px-6 py-3 text-left text-xs lg:text-sm font-semibold text-foreground hidden lg:table-cell whitespace-nowrap">Related Need</th>
+                    <th className="px-4 lg:px-6 py-3 text-left text-xs lg:text-sm font-semibold text-foreground">Status</th>
+                    <th className="px-4 lg:px-6 py-3 text-left text-xs lg:text-sm font-semibold text-foreground">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
@@ -202,33 +277,35 @@ export function ArticleSection() {
                       whileHover={{ backgroundColor: "rgb(0, 0, 0, 0.02)" }}
                       className="hover:bg-secondary/30 transition-colors"
                     >
-                      <td className="px-6 py-4 text-sm text-foreground">{article.title}</td>
-                      <td className="px-6 py-4 text-sm text-muted-foreground">
+                      <td className="px-4 lg:px-6 py-3 lg:py-4 text-xs lg:text-sm text-foreground">
+                        <span className="line-clamp-2">{article.title}</span>
+                      </td>
+                      <td className="px-4 lg:px-6 py-3 lg:py-4 text-xs lg:text-sm text-muted-foreground whitespace-nowrap">
                         {article.readTimeMinutes} {article.readTimeMinutes === 1 ? "min" : "mins"}
                       </td>
-                      <td className="px-6 py-4 text-sm text-muted-foreground">
+                      <td className="px-4 lg:px-6 py-3 lg:py-4 text-xs lg:text-sm text-muted-foreground">
                         {article.category || <span className="text-muted-foreground/60">—</span>}
                       </td>
-                      <td className="px-6 py-4 text-sm text-muted-foreground">
+                      <td className="px-4 lg:px-6 py-3 lg:py-4 text-xs lg:text-sm text-muted-foreground hidden lg:table-cell">
                         {article.needLabel || article.needKey || <span className="text-muted-foreground/60">—</span>}
                       </td>
-                      <td className="px-6 py-4 text-sm">
+                      <td className="px-4 lg:px-6 py-3 lg:py-4 text-xs lg:text-sm">
                         <span
-                          className={`px-3 py-1 rounded-full text-xs font-medium ${
+                          className={`px-2 lg:px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
                             article.isActive ? "bg-accent/20 text-accent" : "bg-secondary/50 text-foreground"
                           }`}
                         >
                           {article.isActive ? "Published" : "Inactive"}
                         </span>
                       </td>
-                      <td className="px-6 py-4 text-sm">
-                        <div className="flex gap-2">
+                      <td className="px-4 lg:px-6 py-3 lg:py-4 text-sm">
+                        <div className="flex gap-1">
                           <button
                             onClick={() => {
                               setSelectedArticle(article)
                               setShowViewArticle(true)
                             }}
-                            className="p-2 hover:bg-primary/10 rounded transition-colors text-primary cursor-pointer"
+                            className="p-1.5 lg:p-2 hover:bg-primary/10 rounded transition-colors text-primary cursor-pointer"
                           >
                             <Eye size={16} />
                           </button>
@@ -237,7 +314,7 @@ export function ArticleSection() {
                               setSelectedArticle(article)
                               setShowEditArticle(true)
                             }}
-                            className="p-2 hover:bg-secondary/50 rounded transition-colors text-foreground cursor-pointer"
+                            className="p-1.5 lg:p-2 hover:bg-secondary/50 rounded transition-colors text-foreground cursor-pointer"
                           >
                             <Edit2 size={16} />
                           </button>
@@ -246,7 +323,7 @@ export function ArticleSection() {
                               setSelectedArticle(article)
                               setShowDeleteArticle(true)
                             }}
-                            className="p-2 hover:bg-destructive/10 rounded transition-colors text-destructive cursor-pointer"
+                            className="p-1.5 lg:p-2 hover:bg-destructive/10 rounded transition-colors text-destructive cursor-pointer"
                           >
                             <Trash2 size={16} />
                           </button>
@@ -263,4 +340,3 @@ export function ArticleSection() {
     </>
   )
 }
-

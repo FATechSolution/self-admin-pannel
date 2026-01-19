@@ -88,7 +88,7 @@ export function LearnGrowSection() {
           <AddVideoModal key="add-video" isOpen={showAddVideo} onClose={() => setShowAddVideo(false)} />
         )}
         {showAddArticle && (
-          <AddArticleModal key="add-article" isOpen={showAddArticle} onClose={() => setShowAddArticle(false)} onAdd={() => {}} />
+          <AddArticleModal key="add-article" isOpen={showAddArticle} onClose={() => setShowAddArticle(false)} onSuccess={() => {}} />
         )}
         {selectedItem && showDelete && (
           <DeleteConfirmationModal
