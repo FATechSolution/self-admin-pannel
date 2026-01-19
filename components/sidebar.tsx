@@ -52,9 +52,11 @@ export function Sidebar({ activeSection, setActiveSection, isOpen, setIsOpen }: 
       {/* Sidebar */}
       <motion.aside
         initial={false}
-        animate={isLargeScreen ? false : { x: isOpen ? 0 : -280 }}
+        animate={{
+          x: isLargeScreen ? 0 : (isOpen ? 0 : "-100%")
+        }}
         transition={{ type: "spring", stiffness: 400, damping: 40 }}
-        className="fixed left-0 top-0 h-screen w-64 sm:w-72 lg:w-72 bg-sidebar border-r border-sidebar-border z-50 lg:static lg:z-auto transform shadow-2xl lg:shadow-none flex flex-col overflow-y-auto lg:!translate-x-0 lg:shrink-0"
+        className="fixed left-0 top-0 h-screen w-64 sm:w-72 lg:w-72 bg-sidebar border-r border-sidebar-border z-50 lg:static lg:z-auto transform shadow-2xl lg:shadow-none flex flex-col overflow-y-auto lg:!transform-none lg:shrink-0"
       >
         <div className="flex flex-col h-full p-3 sm:p-4 md:p-6">
           {/* Logo/Header */}
@@ -98,8 +100,8 @@ export function Sidebar({ activeSection, setActiveSection, isOpen, setIsOpen }: 
                   whileHover={{ x: 4 }}
                   whileTap={{ scale: 0.98 }}
                   className={`w-full flex items-center justify-start gap-2 sm:gap-3 px-2.5 sm:px-3 py-2 sm:py-2.5 rounded-lg transition-all text-xs sm:text-sm cursor-pointer ${activeSection === item.id
-                      ? "bg-sidebar-primary text-sidebar-primary-foreground font-medium shadow-md"
-                      : "text-sidebar-foreground hover:bg-gray-100 hover:text-sidebar-primary"
+                    ? "bg-sidebar-primary text-sidebar-primary-foreground font-medium shadow-md"
+                    : "text-sidebar-foreground hover:bg-gray-100 hover:text-sidebar-primary"
                     }`}
                 >
                   <Icon size={18} className="sm:w-5 sm:h-5 shrink-0" />
